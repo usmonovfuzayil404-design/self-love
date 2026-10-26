@@ -1,0 +1,38 @@
+name: Android RELEASE (Google Play AAB)
+on:
+  workflow_dispatch:
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - name: Qurish
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        run: |
+          npm install
+          npm run build
+          npx cap add android
+          npx capacitor-assets generate --android
+          sed -i 's|<activity |<activity android:screenOrientation="portrait" |' android/app/src/main/AndroidManifest.xml
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          sed -i 's/versionName "1.0"/versionName "1.0.${{ github.run_number }}"/' android/app/build.gradle
+          npx cap sync android
+      - name: Kalitni tayyorlash
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+      - name: Imzolangan AAB
+        run: |
+          cd android
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$PWD/app/release.keystore \
+            -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: self-love-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
