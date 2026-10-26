@@ -13,14 +13,14 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@capacitor/core": "^6.1.2",
-    "@capacitor/share": "^6.0.2"
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/share": "^8.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.2",
-    "@capacitor/cli": "^6.1.2",
-    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/android": "^8.0.0",
     "@capacitor/assets": "^3.0.5"
   }
 }
